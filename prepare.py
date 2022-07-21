@@ -2,11 +2,40 @@ import unicodedata
 import re
 import json
 
+from bs4 import BeautifulSoup as bs
+
 import nltk
 from nltk.tokenize.toktok import ToktokTokenizer
 from nltk.corpus import stopwords
 
 import pandas as pd
+
+def scrubber(string):
+    '''
+    This function takes the data from our github repo acquire script and does an initial 'scrubbing", delimiting on spaces and then:
+    - Removing all newlines
+    - Removing urls
+    - Removing all words greater than 14 characters (5 stds above the mean) - captures random code that sneaks through
+    '''
+    soup = bs(string, 'lxml').text
+    
+    split_soup = soup.split(' ')
+    word_list = []
+
+    for word in split_soup:
+        if re.search(r"\n", word):
+            continue
+        if re.match(r'https:', word):
+            continue
+        if len(word) > 14:
+            continue
+        else:
+            word_list.append(word)
+
+    scrubbed = ' '.join(word_list)
+
+    return scrubbed
+
 
 def basic_clean(string):
     string = string.lower()
@@ -62,6 +91,7 @@ def full_clean(string, extra_words = [], exclude_words = [], stem_or_lemma = 'le
     3. Stem or Lemmatized based on parameter input - default is lemmatize
     4. 
     '''
+    string = scrubber(string)
     string = basic_clean(string)
     string = tokenize(string)
     if stem_or_lemma == 'lemma':
@@ -71,3 +101,23 @@ def full_clean(string, extra_words = [], exclude_words = [], stem_or_lemma = 'le
     cleaned_string = remove_stopwords(string, extra_words, exclude_words)
 
     return cleaned_string
+
+def df_cleaner(df, extra_words = [], exclude_words = []):
+    df_holder = [] 
+
+    for rows in df.index:
+        row = {}
+        repo = df.iloc[rows][0]
+        language = df.iloc[rows][1]
+        readme_contents = df.iloc[rows][2]
+        
+        row['repo'] = repo
+        row['language'] = language
+        row['readme_contents'] = readme_contents
+        
+        row['cleaned'] = full_clean(readme_contents,extra_words,exclude_words)
+        
+        df_holder.append(row)
+    df_cleaned = pd.DataFrame(df_holder)
+
+    return df_cleaned

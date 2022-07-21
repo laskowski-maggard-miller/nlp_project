@@ -33,8 +33,7 @@ def repo_list():
     return repo_list
 
 repo_list = repo_list()
-print(repo_list[:10])
-REPOS = repo_list[:10]
+REPOS = repo_list
 
 headers = {"Authorization": f"token {github_token}", "User-Agent": github_username}
 
@@ -97,6 +96,7 @@ def process_repo(repo: str) -> Dict[str, str]:
     Takes a repo name like "gocodeup/codeup-setup-script" and returns a
     dictionary with the language of the repo and the readme contents.
     """
+    print(repo)
     contents = get_repo_contents(repo)
     readme_download_url = get_readme_download_url(contents)
     if readme_download_url == "":
@@ -118,14 +118,15 @@ def scrape_github_data() -> List[Dict[str, str]]:
 
 
 if __name__ == "__main__":
-    #REPO = repo_list()
     data = scrape_github_data()
     json.dump(data, open("data.json", "w"), indent=1)
+ 
+def json_to_df():
+    f = open('data.json')
+    data = json.load(f)
+    df_repos_raw = pd.DataFrame(data)
 
-
-
-
-
+    return df_repos_raw
 
 ## ----------++----------++----------++----------++----------
 
