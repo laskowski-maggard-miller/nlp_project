@@ -10,6 +10,8 @@ import os
 import json
 from typing import Dict, List, Optional, Union, cast
 import requests
+import pandas as pd
+from bs4 import BeautifulSoup as bs
 
 from env import github_token, github_username
 
@@ -21,16 +23,18 @@ from env import github_token, github_username
 # TODO: Add more repositories to the `REPOS` list below.
 
 # Created repo_list Function below to pull in repos
-REPOS = ['typelevel/cats',
- 'nyaadevs/nyaa',
- 'httpcats/http.cat',
- 'AlexiaJM/Deep-learning-with-cats',
- 'sharkdp/bat',
- 'typelevel/cats-effect',
- 'funcool/cats',
- 'websockets/wscat',
- 'owenthereal/ccat',
- 'absolute-quantum/cats-blender-plugin']
+def repo_list():
+    '''
+    This pulls all of the repos in from a csv file making this clearer than having a giant list for REPO
+    '''
+    df = pd.read_csv('repo_list.csv')
+    repo_list = df['0'].values.tolist()
+
+    return repo_list
+
+repo_list = repo_list()
+print(repo_list[:10])
+REPOS = repo_list[:10]
 
 headers = {"Authorization": f"token {github_token}", "User-Agent": github_username}
 
@@ -112,12 +116,46 @@ def scrape_github_data() -> List[Dict[str, str]]:
     """
     return [process_repo(repo) for repo in REPOS]
 
-# def repo_list():
-#     base_url = 'https://github.com/'
-    
-
 
 if __name__ == "__main__":
     #REPO = repo_list()
     data = scrape_github_data()
     json.dump(data, open("data.json", "w"), indent=1)
+
+
+
+
+
+
+## ----------++----------++----------++----------++----------
+
+# def repo_list(start_page, end_page, repo_list = []):
+#     '''
+#     This function generates a list of repositories to then be acquired via the functions above    
+#     '''
+#     for page in range((start_page-1),end_page):
+#         url = f'https://github.com/search?p={1+page}&q=cats&type=Repositories'
+#         print(f'Procuring {url}')
+#         r = requests.get(url)
+#         soup = bs(r.content, 'html.parser')
+        
+#         repo = soup.find('ul', class_ = "repo-list")
+
+#         try:
+#             repos = repo.find_all('a', class_ = 'v-align-middle')
+#         except:
+#             print(f'>>>Failed to procure {url}')
+#             repo_list(page,end_page,repo_list=repo_list)
+#         for thing in repos:
+#             repo_url = thing.text
+#             repo_list.append(repo_url)
+#         sleep(2)
+
+# def repo_list():
+#     '''
+#     This pulls all of the repos in from a csv file making this clearer than having a giant list for REPO
+#     '''
+#     df = pd.read_csv('repo_list.csv')
+#     repo_list = df['0'].values.tolist()
+
+#     return repo_list
