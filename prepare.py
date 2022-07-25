@@ -85,7 +85,7 @@ def remove_stopwords(string, extra_words = [], exclude_words = []):
 
 def remove_smalls(string):
     words = string.split(' ')
-    large_words = [w for w in words if len(w) > 1]
+    large_words = [w for w in words if len(w) > 2]
     string = ' '.join(large_words)
     return string
 
@@ -107,7 +107,7 @@ def full_clean(string, extra_words = [], exclude_words = [], stem_or_lemma = 'le
     string = remove_stopwords(string, extra_words, exclude_words)
     cleaned_string = remove_smalls(string)
 
-    return cleaned_string
+    return cleaned_string   
 
 def df_cleaner(df, extra_words = [], exclude_words = []):
     df_holder = [] 
