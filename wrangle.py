@@ -6,9 +6,9 @@ import numpy as np
 
 from sklearn.model_selection import train_test_split
 
-def cat_wrangle():
+def cat_wrangle(extra_words = [], exclude_words = []):
     df = json_to_df()
-    df = df_cleaner(df)
+    df = df_cleaner(df, extra_words = extra_words, exclude_ords = exclude_words)
     full_df = df.shape[0]
 
     # Remove all null values in the readme (60 total rows)
@@ -28,7 +28,7 @@ def cat_wrangle():
 
     # Create Dataframe to store original Readme, as well as specific language data, in case either are needed later
     # Then drop both columns
-    df_langauges = df[['readme_contents','language']]
+    df_languages = df[['readme_contents','language']]
     df = df.drop(columns = ['readme_contents','language'])
 
     # Splits
@@ -45,7 +45,7 @@ def cat_wrangle():
     X_test = test.drop(columns = ['language_group'])
     y_test = test.language_group
 
-    return X_train, y_train, X_validate, y_validate, X_test, y_test, df, df_langauges
+    return X_train, y_train, X_validate, y_validate, X_test, y_test, df, df_languages
 
 def splitter(df, target = 'None', train_split_1 = .8, train_split_2 = .7, random_state = 123):
     '''
