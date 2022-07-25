@@ -75,13 +75,19 @@ def remove_stopwords(string, extra_words = [], exclude_words = []):
     # Adds additional stopwords
     for word in extra_words:
         stopword_list.append(word)
-    words = string.split()
+    words = string.split(' ')
     filtered_words = [w for w in words if w not in stopword_list]
     #print('Removed {} stopwords'.format(len(words) - len(filtered_words)))
 
     stopwordless_string = ' '.join(filtered_words)
 
     return stopwordless_string
+
+def remove_smalls(string):
+    words = string.split(' ')
+    large_words = [w for w in words if len(w) > 1]
+    string = ' '.join(large_words)
+    return string
 
 def full_clean(string, extra_words = [], exclude_words = [], stem_or_lemma = 'lemma'):
     '''
@@ -98,7 +104,8 @@ def full_clean(string, extra_words = [], exclude_words = [], stem_or_lemma = 'le
         string = lemmatize(string)
     else:
         string = stem(string)
-    cleaned_string = remove_stopwords(string, extra_words, exclude_words)
+    string = remove_stopwords(string, extra_words, exclude_words)
+    cleaned_string = remove_smalls(string)
 
     return cleaned_string
 
