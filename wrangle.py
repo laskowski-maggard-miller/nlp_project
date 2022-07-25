@@ -8,7 +8,7 @@ from sklearn.model_selection import train_test_split
 
 def cat_wrangle(extra_words = [], exclude_words = []):
     df = json_to_df()
-    df = df_cleaner(df, extra_words = extra_words, exclude_ords = exclude_words)
+    df = df_cleaner(df, extra_words = extra_words, exclude_words = exclude_words)
     full_df = df.shape[0]
 
     # Remove all null values in the readme (60 total rows)
