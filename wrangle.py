@@ -5,9 +5,17 @@ import pandas as pd
 import numpy as np
 
 from sklearn.model_selection import train_test_split
+from sklearn.feature_extraction.text import TfidfVectorizer
 
 def cat_wrangle(extra_words = [], exclude_words = []):
+    '''
+    Acquires, cleans, prepares and splits the repo data into evaluation and modeling dataframes.
+    For the NLP group project - 1000 top repos mentioning cats.
+
+    '''
+    # Acquire the dataframe
     df = json_to_df()
+    # Returns clean dataframe from prepare
     df = df_cleaner(df, extra_words = extra_words, exclude_words = exclude_words)
     full_df = df.shape[0]
 
@@ -23,16 +31,23 @@ def cat_wrangle(extra_words = [], exclude_words = []):
     df = df[df.cleaned_length > 9]
     print(f'Removed {full_df - df.shape[0] - null_count} rows with Readmes < 10 words long.')
 
-    # Bucksets all languages into 3 most common + others
+    # Buckets all languages into 3 most common + others
     df['language_group'] = np.where(df['language'] == 'Scala', 'Scala', np.where(df['language'] == 'Python', 'Python', np.where(df['language'] == 'JavaScript', 'JavaScript', 'Other')))
 
-    # Create Dataframe to store original Readme, as well as specific language data, in case either are needed later
+    # Create Dataframes to store repo name and original Readme, in case either are needed later
     # Then drop both columns
-    df_languages = df[['readme_contents','language']]
-    df = df.drop(columns = ['readme_contents','language'])
+    df_repo_and_original = df[['repo','readme_contents']]
+    df = df.drop(columns = ['repo','readme_contents',])
+
+    # Create Analytical Dataframe, and then remove it from the pre-TF-IDF vectorization
+    # tfidf = TfidfVectorizer()
+    # X = tfidf.fit_transform(df.cleaned)
+    # y = df.language_group
+
+    # df_analysis = pd.concat([X,y])
 
     # Splits
-    train, validate, test = splitter(df, target = 'language_group')
+    train, validate, test = splitter(df_analysis, target = 'language_group')
 
     # Creates X and y versions of train, test and split
     # Note: We did not scale the numerical data (word count) as it was not necessary
@@ -45,7 +60,7 @@ def cat_wrangle(extra_words = [], exclude_words = []):
     X_test = test.drop(columns = ['language_group'])
     y_test = test.language_group
 
-    return X_train, y_train, X_validate, y_validate, X_test, y_test, df, df_languages
+    return X_train, y_train, X_validate, y_validate, X_test, y_test, df, df_repo_and_original
 
 def splitter(df, target = 'None', train_split_1 = .8, train_split_2 = .7, random_state = 123):
     '''
