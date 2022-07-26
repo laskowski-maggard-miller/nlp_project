@@ -39,15 +39,8 @@ def cat_wrangle(extra_words = [], exclude_words = []):
     df_repo_and_original = df[['repo','readme_contents']]
     df = df.drop(columns = ['repo','readme_contents',])
 
-    # Create Analytical Dataframe, and then remove it from the pre-TF-IDF vectorization
-    # tfidf = TfidfVectorizer()
-    # X = tfidf.fit_transform(df.cleaned)
-    # y = df.language_group
-
-    # df_analysis = pd.concat([X,y])
-
     # Splits
-    train, validate, test = splitter(df_analysis, target = 'language_group')
+    train, validate, test = splitter(df, target = 'language_group')
 
     # Creates X and y versions of train, test and split
     # Note: We did not scale the numerical data (word count) as it was not necessary

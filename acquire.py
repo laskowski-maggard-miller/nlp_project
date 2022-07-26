@@ -122,6 +122,11 @@ if __name__ == "__main__":
     json.dump(data, open("data.json", "w"), indent=1)
  
 def json_to_df():
+    '''
+    Converts the data.json file outputted from running this .py file in the terminal
+    into a dataframe with the repo name, top language (target) and raw readme
+    '''
+    # Open, load and convert json file into dataframe
     f = open('data.json')
     data = json.load(f)
     df_repos_raw = pd.DataFrame(data)

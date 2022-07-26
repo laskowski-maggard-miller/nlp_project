@@ -23,10 +23,13 @@ def scrubber(string):
     word_list = []
 
     for word in split_soup:
+        # Remove any '\n' due to acquire function formatting
         if re.search(r"\n", word):
             continue
+        # Remove any urls due to acquire function formatting
         if re.match(r'https:', word):
             continue
+        # Remove any words over 14 characters (likely not words)
         if len(word) > 14:
             continue
         else:
@@ -38,18 +41,27 @@ def scrubber(string):
 
 
 def basic_clean(string):
+    '''
+    Converts input string to lowercase and removes non unicode and simple characters
+    '''
     string = string.lower()
     string = unicodedata.normalize('NFKD', string).encode('ascii', 'ignore').decode('utf-8', 'ignore')
     string = re.sub(r"[^a-z0-9'\s]", '', string)
     return string
 
 def tokenize(string):
+    '''
+    Tokenizes input string
+    '''
     tokenizer = ToktokTokenizer()
     string = tokenizer.tokenize(string, return_str=True)
 
     return string
 
 def stem(string):
+    '''
+    Returns stems of string words
+    '''
     # Create the nltk stemmer object, then use it
     ps = nltk.porter.PorterStemmer()
     stems = [ps.stem(word) for word in string.split()]
@@ -58,6 +70,9 @@ def stem(string):
     return string
 
 def lemmatize(string):
+    '''
+    Returns lemmatized string words
+    '''
     wnl = nltk.stem.WordNetLemmatizer()
     lemmas = [wnl.lemmatize(word) for word in string.split()]
     string = ' '.join(lemmas)
@@ -84,6 +99,9 @@ def remove_stopwords(string, extra_words = [], exclude_words = []):
     return stopwordless_string
 
 def remove_smalls(string):
+    '''
+    Gets rid of words less than 2 characters that slipped through prior cleaning (likely not words)
+    '''
     words = string.split(' ')
     large_words = [w for w in words if len(w) > 2]
     string = ' '.join(large_words)
@@ -110,8 +128,13 @@ def full_clean(string, extra_words = [], exclude_words = [], stem_or_lemma = 'le
     return cleaned_string   
 
 def df_cleaner(df, extra_words = [], exclude_words = []):
+    '''
+    Executes full clean function above on a dataframe, row by row
+    '''
+    # Creates object to hold future dataframe to return
     df_holder = [] 
 
+    # Get the information from the repos
     for rows in df.index:
         row = {}
         repo = df.iloc[rows][0]
@@ -121,7 +144,8 @@ def df_cleaner(df, extra_words = [], exclude_words = []):
         row['repo'] = repo
         row['language'] = language
         row['readme_contents'] = readme_contents
-        
+
+        # Get cleaned version of readme        
         row['cleaned'] = full_clean(readme_contents,extra_words,exclude_words)
         
         df_holder.append(row)
